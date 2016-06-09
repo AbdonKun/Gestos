@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         TextView pregunta = (TextView)findViewById(R.id.pregunta);
         rl = (RelativeLayout) findViewById(R.id.relative);
 
-
-
         GestureOverlayView overlayView = (GestureOverlayView)findViewById(R.id.gesto);
         overlayView.addOnGesturePerformedListener(this);
 
@@ -54,11 +52,32 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         if (!gesLib.load()) {
             finish();
         }
-        Log.d("Log","pase");
-
-
-
+        //Log.d("Log","pase");
     }
+
+    @Override
+    public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
+
+        ArrayList<Prediction> predictions = gesLib.recognize(gesture);
+
+        for (Prediction prediction : predictions) {
+
+            if (prediction.score == 0.2) {
+
+                Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
+                Snackbar.make(rl, prediction.name, Snackbar.LENGTH_SHORT).show();
+            }
+            //if (prediction.name == prediction.name){
+              //  Toast.makeText(this, "If:  " + prediction.name, Toast.LENGTH_SHORT).show();
+            //}
+        }
+    }
+
+
+
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -82,14 +101,4 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
-        ArrayList<Prediction> predictions = gesLib.recognize(gesture);
-        for (Prediction prediction : predictions) {
-            if (prediction.score > 1.0) {
-                Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
-                Snackbar.make(rl,prediction.name,Snackbar.LENGTH_SHORT).show();
-            }
-        }
-    }
 }
