@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
 
         for (Prediction prediction : predictions) {
 
-            if (prediction.score == 0.2) {
+            if (prediction.score > 2.0) {
 
                 Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
                 Snackbar.make(rl, prediction.name, Snackbar.LENGTH_SHORT).show();
