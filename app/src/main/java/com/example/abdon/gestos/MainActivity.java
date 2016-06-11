@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         rl = (RelativeLayout) findViewById(R.id.relative);
         overlayView = (GestureOverlayView)findViewById(R.id.gesto);
 
+
         if (overlayView != null) {
             overlayView.addOnGesturePerformedListener(this);
         }
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
     };
 
     private void evaluarRespuesta(OnRespuestaListener listener){
-
+        this.listener = listener;
     }
 
     public void agregarPregunta(String pregunta){
