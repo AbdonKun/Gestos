@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
     private Socket socket2;
     TextView pregunta;
 
+    public String respuesta;
+
 
 
     @Override
@@ -50,8 +53,10 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        TextView reconocido = (TextView)findViewById(R.id.reconocido);
+        //TextView reconocido = (TextView)findViewById(R.id.reconocido);
+
         pregunta = (TextView)findViewById(R.id.pregunta);
+
         rl = (RelativeLayout) findViewById(R.id.relative);
 
         GestureOverlayView overlayView = (GestureOverlayView)findViewById(R.id.gesto);
@@ -59,26 +64,59 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
 
         gesLib = GestureLibraries.fromFile(file);
 
+        String[] mate = {
+                "3+3=?",
+                "3+4=?",
+                "3+6=?"
+        };
+        String[] mStrings = new String[mate.length];
+
+        for (int i=0; i < mate.length; i++){
+
+            mStrings[i] = mate[i].toLowerCase();
+
+            Toast.makeText(this, mStrings[i], Toast.LENGTH_SHORT).show();
+            pregunta.setText(mStrings[i]);
+        }
+
         if (!gesLib.load()) {
             finish();
         }
 
-        irInicio();
+        //for(int i=0;i<mate.length;i++) {
+
+            //mStrings[i] = mate[i].toLowerCase();
+            //Toast.makeText(this, mStrings[i], Toast.LENGTH_SHORT).show();
+
+                //if (respuesta == mStrings[i]) {
+
+                   // Toast.makeText(this, "La Respuesta: " + respuesta + " Es Correcta", Toast.LENGTH_SHORT).show();
+               // }
+               // } else {
+                    //Toast.makeText(this, "Respuesta: " + respuesta + " No Corresponde", Toast.LENGTH_SHORT).show();
+                //}
+
+            //System.out.println(mStrings[i]);
+        //}
+
+
+        //irInicio();
         //socket.on("nueva pregunta", onNuevaPregunta);
         //Log.d("Log","pase");
     }
+
+
 
     @Override
     public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
 
         ArrayList<Prediction> predictions = gesLib.recognize(gesture);
-
         for (Prediction prediction : predictions) {
 
             if (prediction.score > 2.0) {
-
+                respuesta = prediction.name;
                 Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
-                Snackbar.make(rl, prediction.name, Snackbar.LENGTH_SHORT).show();
+                //Snackbar.make(rl, prediction.name, Snackbar.LENGTH_SHORT).show();
             }
         }
     }
