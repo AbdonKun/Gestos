@@ -124,9 +124,11 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
 
         ArrayList<Prediction> predictions = gesLib.recognize(gesture);
         for (Prediction prediction : predictions) {
-            if (prediction.name.equals(preguntasRespuestas.get(preguntas.get(index)))) {
-                listener.onRespuestaCorrecta();
-            } else listener.onRespuestaIncorrecta();
+            if (index <= preguntas.size()-1){
+                if (prediction.name.equals(preguntasRespuestas.get(preguntas.get(index)))) {
+                    listener.onRespuestaCorrecta();
+                } else listener.onRespuestaIncorrecta();
+            }
         }
     }
 
