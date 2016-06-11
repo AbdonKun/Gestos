@@ -5,32 +5,28 @@ import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
-import android.os.Bundle;
 import android.gesture.Prediction;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
+import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         reconocido = (TextView)findViewById(R.id.reconocido);
         pregunta = (TextView)findViewById(R.id.pregunta);
         rl = (RelativeLayout) findViewById(R.id.relative);
-        overlayView = (GestureOverlayView)findViewById(R.id.gesto);
+        overlayView = (GestureOverlayView)findViewById(R.id.gestures);
 
 
         if (overlayView != null) {
@@ -90,27 +86,42 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
 
         evaluarRespuesta(new OnRespuestaListener() {
             @Override
-            public void onRespuestaCorrecta() {
+            public boolean onRespuestaCorrecta() {
                 index++;
+                if (index == 5){
+                    reconocido.setText("Respuesta correcta! Terminado!");
+                    Toast.makeText(MainActivity.this, "FIN", Toast.LENGTH_SHORT).show();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    }, 2000);
+                    return false;
+                }
+                Log.d("pregArray", preguntas.get(index)+"");
+                Log.d("pregRespHash", preguntasRespuestas.get(preguntas.get(index))+"");
                 reconocido.setText("Respuesta correcta! Vamos por la que sigue...");
-                Handler handler = new Handler();
 
+                Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         pregunta.setText(preguntas.get(index));
                         reconocido.setText(" ");
                     }
-                }, 3000);
+                }, 1000);
+                return true;
 
             }
 
             @Override
-            public void onRespuestaIncorrecta() {
+            public boolean onRespuestaIncorrecta() {
                 reconocido.setText("Respuesta incorrecta :(");
+                return false;
             }
         });
-
 
         //irInicio();
         //socket.on("nueva pregunta", onNuevaPregunta);
@@ -126,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         for (Prediction prediction : predictions) {
             if (index <= preguntas.size()-1){
                 if (prediction.name.equals(preguntasRespuestas.get(preguntas.get(index)))) {
-                    listener.onRespuestaCorrecta();
-                } else listener.onRespuestaIncorrecta();
+                    if (listener.onRespuestaCorrecta()) return;
+                } else if (!listener.onRespuestaIncorrecta()) return;
             }
         }
     }
@@ -220,8 +231,8 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
     }
 
     private interface OnRespuestaListener{
-        void onRespuestaCorrecta();
-        void onRespuestaIncorrecta();
+        boolean onRespuestaCorrecta();
+        boolean onRespuestaIncorrecta();
     }
 
 }
