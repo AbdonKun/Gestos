@@ -28,7 +28,7 @@
         android:id="@+id/pregunta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="pregunta"
+        android:text="asdf"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/reconocido"
         android:layout_toEndOf="@+id/reconocido" />

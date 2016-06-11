@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.socketio.client.IO;
 
 import org.json.JSONException;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
     private static GestureLibrary almacen;
     private RelativeLayout rl;
     private com.github.nkzawa.socketio.client.Socket socket;
+    private Socket socket2;
     TextView pregunta;
 
 
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         }
 
         irInicio();
-        socket.on("nueva pregunta", onNuevaPregunta);
+        //socket.on("nueva pregunta", onNuevaPregunta);
         //Log.d("Log","pase");
     }
 
@@ -104,7 +106,14 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
             e.printStackTrace();
         }
         socket.connect();
-        Log.d("CONECTADO", "CONECTADO");
+        agendarEventos();
+    }
+
+    private void agendarEventos() {
+        if(socket != null) {
+            Log.d("paso", "paso");
+            socket.on("nueva pregunta", onNuevaPregunta);
+        }
     }
 
     private Emitter.Listener onNuevaPregunta = new Emitter.Listener() {
@@ -118,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
                     String pregunta;
                     try {
                         Log.d("CONECTADO", "pregunta");
-                        pregunta = data.getString("pregunta");
+                        pregunta = data.getString("mensaje");
                     } catch (JSONException e) {
                         return;
                     }
