@@ -8,6 +8,7 @@ import android.gesture.GestureOverlayView;
 import android.os.Bundle;
 import android.gesture.Prediction;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -31,21 +33,22 @@ import java.io.File;
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity implements GestureOverlayView.OnGesturePerformedListener{
 
     private GestureLibrary gesLib;
     private final File file = new File(Environment.getExternalStorageDirectory(),"gestures");
-    private static GestureLibrary almacen;
+    private GestureOverlayView overlayView;
     private RelativeLayout rl;
     private com.github.nkzawa.socketio.client.Socket socket;
-    private Socket socket2;
-    TextView pregunta;
-
-    public String respuesta;
-
-
+    private TextView pregunta;
+    private TextView reconocido;
+    private OnRespuestaListener listener;
+    private HashMap<String, String> preguntasRespuestas;
+    private ArrayList<String> preguntas;
+    private int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,51 +56,59 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //TextView reconocido = (TextView)findViewById(R.id.reconocido);
-
+        reconocido = (TextView)findViewById(R.id.reconocido);
         pregunta = (TextView)findViewById(R.id.pregunta);
-
         rl = (RelativeLayout) findViewById(R.id.relative);
+        overlayView = (GestureOverlayView)findViewById(R.id.gesto);
 
-        GestureOverlayView overlayView = (GestureOverlayView)findViewById(R.id.gesto);
-        overlayView.addOnGesturePerformedListener(this);
+        if (overlayView != null) {
+            overlayView.addOnGesturePerformedListener(this);
+        }
 
         gesLib = GestureLibraries.fromFile(file);
 
-        String[] mate = {
-                "3+3=?",
-                "3+4=?",
-                "3+6=?"
-        };
-        String[] mStrings = new String[mate.length];
+        preguntas = new ArrayList<>();
+        preguntas.add("1 + 0 = ?");
+        preguntas.add("1 + 1 = ?");
+        preguntas.add("1 + 2 = ?");
+        preguntas.add("1 + 3 = ?");
+        preguntas.add("1 + 4 = ?");
 
-        for (int i=0; i < mate.length; i++){
-
-            mStrings[i] = mate[i].toLowerCase();
-
-            Toast.makeText(this, mStrings[i], Toast.LENGTH_SHORT).show();
-            pregunta.setText(mStrings[i]);
-        }
+        preguntasRespuestas = new HashMap<>();
+        preguntasRespuestas.put(preguntas.get(0), "1");
+        preguntasRespuestas.put(preguntas.get(1), "2");
+        preguntasRespuestas.put(preguntas.get(2), "3");
+        preguntasRespuestas.put(preguntas.get(3), "4");
+        preguntasRespuestas.put(preguntas.get(4), "5");
 
         if (!gesLib.load()) {
-            finish();
+            //finish();
         }
 
-        //for(int i=0;i<mate.length;i++) {
+        pregunta.setText(preguntas.get(index));
 
-            //mStrings[i] = mate[i].toLowerCase();
-            //Toast.makeText(this, mStrings[i], Toast.LENGTH_SHORT).show();
+        evaluarRespuesta(new OnRespuestaListener() {
+            @Override
+            public void onRespuestaCorrecta() {
+                index++;
+                reconocido.setText("Respuesta correcta! Vamos por la que sigue...");
+                Handler handler = new Handler();
 
-                //if (respuesta == mStrings[i]) {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pregunta.setText(preguntas.get(index));
+                        reconocido.setText(" ");
+                    }
+                }, 3000);
 
-                   // Toast.makeText(this, "La Respuesta: " + respuesta + " Es Correcta", Toast.LENGTH_SHORT).show();
-               // }
-               // } else {
-                    //Toast.makeText(this, "Respuesta: " + respuesta + " No Corresponde", Toast.LENGTH_SHORT).show();
-                //}
+            }
 
-            //System.out.println(mStrings[i]);
-        //}
+            @Override
+            public void onRespuestaIncorrecta() {
+                reconocido.setText("Respuesta incorrecta :(");
+            }
+        });
 
 
         //irInicio();
@@ -112,12 +123,9 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
 
         ArrayList<Prediction> predictions = gesLib.recognize(gesture);
         for (Prediction prediction : predictions) {
-
-            if (prediction.score > 2.0) {
-                respuesta = prediction.name;
-                Toast.makeText(this, prediction.name, Toast.LENGTH_SHORT).show();
-                //Snackbar.make(rl, prediction.name, Snackbar.LENGTH_SHORT).show();
-            }
+            if (prediction.name.equals(preguntasRespuestas.get(preguntas.get(index)))) {
+                listener.onRespuestaCorrecta();
+            } else listener.onRespuestaIncorrecta();
         }
     }
 
@@ -177,6 +185,10 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         }
     };
 
+    private void evaluarRespuesta(OnRespuestaListener listener){
+
+    }
+
     public void agregarPregunta(String pregunta){
         this.pregunta.setText(pregunta);
     }
@@ -202,6 +214,11 @@ public class MainActivity extends AppCompatActivity implements GestureOverlayVie
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private interface OnRespuestaListener{
+        void onRespuestaCorrecta();
+        void onRespuestaIncorrecta();
     }
 
 }
