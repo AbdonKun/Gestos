@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">gestos</string>
     <string name="action_settings">Settings</string>
+    <string name="respuesta_correcta">Respuesta correcta! Vamos por la que sigue...</string>
+    <string name="respuesta_incorrecta">Respuesta incorrecta :(</string>
+    <string name="respuesta_correcta_final">Respuesta correcta! Terminado!</string>
 
     <string-array name="matematica">
         <item>3+3=?</item>

@@ -1,4 +1,4 @@
-package com.example.abdon.gestos;
+package tk.gringraz.detectorgestosandroid;
 
 import android.app.Dialog;
 import android.content.Context;
